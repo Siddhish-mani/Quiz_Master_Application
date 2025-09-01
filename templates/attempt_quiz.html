@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Attempt Quiz{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quiz-timer {
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>{{ quiz.chapter.subject.name }} - {{ quiz.chapter.name }}</h2>
+                <div class="quiz-timer">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title mb-0">Time Remaining</h5>
+                            <div id="timer" class="display-6 text-danger">00:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="POST" id="quizForm">
+                {% for question in questions %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Question {{ loop.index }} of {{ questions|length }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ question.question_statement }}</h5>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   id="q{{ question.id }}_1" value="1" required>
+                            <label class="form-check-label" for="q{{ question.id }}_1">
+                                {{ question.option1 }}
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   id="q{{ question.id }}_2" value="2">
+                            <label class="form-check-label" for="q{{ question.id }}_2">
+                                {{ question.option2 }}
+                            </label>
+                        </div>
+                        
+                        {% if question.option3 %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   id="q{{ question.id }}_3" value="3">
+                            <label class="form-check-label" for="q{{ question.id }}_3">
+                                {{ question.option3 }}
+                            </label>
+                        </div>
+                        {% endif %}
+                        
+                        {% if question.option4 %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" 
+                                   name="question_{{ question.id }}" 
+                                   id="q{{ question.id }}_4" value="4">
+                            <label class="form-check-label" for="q{{ question.id }}_4">
+                                {{ question.option4 }}
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get duration from Flask template safely
+        const durationMinutes = parseInt("{{ quiz.time_duration }}") || 30;
+        let timeLeft = durationMinutes * 60;
+        const timerElement = document.getElementById('timer');
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('quizForm').submit();
+            } else {
+                timeLeft--;
+            }
+        }
+        
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+        
+        // Prevent form submission on Enter key
+        document.getElementById('quizForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

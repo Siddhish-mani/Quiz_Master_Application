@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}View Scores{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+            <li class="breadcrumb-item active" aria-current="page">View Scores</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">All Quiz Attempts</h1>
+
+    <div class="card">
+        <div class="card-body">
+            {% if scores %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Chapter</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for score in scores %}
+                        <tr>
+                            <td>{{ score.user.username }}</td>
+                            <td>{{ score.quiz.chapter.subject.name }}</td>
+                            <td>{{ score.quiz.chapter.name }}</td>
+                            <td>{{ score.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ score.total_scored }}/{{ score.total_questions }}</td>
+                            <td>
+                                <span class="badge bg-{% if score.percentage >= 70 %}success{% elif score.percentage >= 50 %}warning{% else %}danger{% endif %}">
+                                    {{ score.percentage }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No quiz attempts recorded yet</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

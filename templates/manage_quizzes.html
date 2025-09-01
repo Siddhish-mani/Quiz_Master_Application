@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Quizzes - {{ chapter.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_chapters', subject_id=chapter.subject.id) }}">
+                {{ chapter.subject.name }}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ chapter.name }} Quizzes</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ chapter.name }} Quizzes</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuizModal">
+            Add Quiz
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if chapter.quizzes %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Duration (mins)</th>
+                            <th>Created</th>
+                            <th>Questions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in chapter.quizzes %}
+                        <tr>
+                            <td>{{ quiz.id }}</td>
+                            <td>{{ quiz.time_duration }}</td>
+                            <td>{{ quiz.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ quiz.questions|length }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" 
+                                   class="btn btn-sm btn-outline-primary me-2">
+                                    Manage Questions
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No quizzes found for this chapter</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Quiz Modal -->
+<div class="modal fade" id="addQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.add_quiz') }}">
+                <input type="hidden" name="chapter_id" value="{{ chapter.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" name="duration" class="form-control" min="1" value="30" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Remarks</label>
+                        <textarea name="remarks" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

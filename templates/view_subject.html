@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subject.name }} - Subject Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ subject.name }}</h1>
+        <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Subject Description</h5>
+            <p class="card-text">{{ subject.description or "No description available" }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Chapters</h5>
+        </div>
+        <div class="card-body">
+            {% if chapters %}
+            <div class="list-group">
+                {% for chapter in chapters %}
+                <a href="{{ url_for('user.attempt_quiz', quiz_id=chapter.quizzes[0].id) if chapter.quizzes else '#' }}" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ chapter.name }}</h6>
+                            <small class="text-muted">{{ chapter.description or "" }}</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">
+                            {{ chapter.quizzes|length }} quiz{% if chapter.quizzes|length != 1 %}zes{% endif %}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No chapters available for this subject yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

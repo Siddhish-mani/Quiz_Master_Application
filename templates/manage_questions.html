@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Questions - Quiz {{ quiz.id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_chapters', subject_id=quiz.chapter.subject.id) }}">
+                {{ quiz.chapter.subject.name }}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_quizzes', chapter_id=quiz.chapter.id) }}">
+                {{ quiz.chapter.name }}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quiz {{ quiz.id }} Questions</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Quiz Questions</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+            Add Question
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Quiz Details
+        </div>
+        <div class="card-body">
+            <p><strong>Chapter:</strong> {{ quiz.chapter.name }}</p>
+            <p><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
+            <p><strong>Questions:</strong> {{ quiz.questions|length }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if quiz.questions %}
+            <div class="list-group">
+                {% for question in quiz.questions %}
+                <div class="list-group-item mb-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1 me-3">
+                            <h5 class="mb-3">Question #{{ loop.index }}</h5>
+                            <p class="mb-3">{{ question.question_statement }}</p>
+                            
+                            <div class="options">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if question.correct_option == 1 %}checked{% endif %}>
+                                    <label class="form-check-label {% if question.correct_option == 1 %}fw-bold text-success{% endif %}">
+                                        {{ question.option1 }}
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if question.correct_option == 2 %}checked{% endif %}>
+                                    <label class="form-check-label {% if question.correct_option == 2 %}fw-bold text-success{% endif %}">
+                                        {{ question.option2 }}
+                                    </label>
+                                </div>
+                                {% if question.option3 %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if question.correct_option == 3 %}checked{% endif %}>
+                                    <label class="form-check-label {% if question.correct_option == 3 %}fw-bold text-success{% endif %}">
+                                        {{ question.option3 }}
+                                    </label>
+                                </div>
+                                {% endif %}
+                                {% if question.option4 %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if question.correct_option == 4 %}checked{% endif %}>
+                                    <label class="form-check-label {% if question.correct_option == 4 %}fw-bold text-success{% endif %}">
+                                        {{ question.option4 }}
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <form method="POST" action="{{ url_for('admin.delete_question', question_id=question.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No questions found for this quiz</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.add_question') }}">
+                <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question Statement</label>
+                        <textarea name="statement" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Option 1 (Correct)</label>
+                            <input type="text" name="option1" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Option 2</label>
+                            <input type="text" name="option2" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Option 3 (Optional)</label>
+                            <input type="text" name="option3" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Option 4 (Optional)</label>
+                            <input type="text" name="option4" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Correct Option</label>
+                        <select name="correct_option" class="form-select" required>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

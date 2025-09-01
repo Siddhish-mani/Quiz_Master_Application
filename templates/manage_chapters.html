@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Chapters - {{ subject.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ subject.name }} Chapters</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ subject.name }} Chapters</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">
+            Add Chapter
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if subject.chapters %}
+            <div class="list-group">
+                {% for chapter in subject.chapters %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{ chapter.name }}</h5>
+                            <p class="mb-1 text-muted">{{ chapter.description|default('No description', true) }}</p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('admin.manage_quizzes', chapter_id=chapter.id) }}" 
+                               class="btn btn-sm btn-outline-primary me-2">
+                                Manage Quizzes
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_chapter', chapter_id=chapter.id) }}" 
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No chapters found for this subject</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Chapter Modal -->
+<div class="modal fade" id="addChapterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Chapter</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.add_chapter') }}">
+                <input type="hidden" name="subject_id" value="{{ subject.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chapter Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Chapter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

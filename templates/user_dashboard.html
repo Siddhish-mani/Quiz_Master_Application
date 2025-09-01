@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Welcome, {{ current_user.full_name or current_user.username }}</h1>
+            <p class="lead">Ready to test your knowledge?</p>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Attempts</h5>
+                    <p class="card-text display-6">{{ total_attempts }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Average Score</h5>
+                    <p class="card-text display-6">{{ avg_score }}%</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Available Subjects</h5>
+                    <p class="card-text display-6">{{ subjects|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Available Subjects</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for subject in subjects %}
+                        <a href="{{ url_for('user.view_subject', subject_id=subject.Subject.id) }}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ subject.Subject.name }}</h6>
+                                    <small class="text-muted">{{ subject.Subject.description }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ subject.quiz_count }} quizzes
+                                </span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Attempts</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_scores %}
+                    <ul class="list-group">
+                        {% for score in recent_scores %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ score.quiz.chapter.subject.name }}</strong>
+                                    <div class="small">{{ score.quiz.chapter.name }}</div>
+                                </div>
+                                <span class="badge bg-{{ 'success' if score.percentage >= 50 else 'danger' }} rounded-pill">
+                                    {{ score.percentage }}%
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ url_for('user.view_my_scores') }}" class="btn btn-outline-primary mt-3 w-100">
+                        View All Scores
+                    </a>
+                    {% else %}
+                    <p class="text-muted">No quiz attempts yet</p>
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary w-100">
+                        Take a Quiz
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
